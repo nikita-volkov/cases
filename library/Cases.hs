@@ -160,17 +160,23 @@ process tr fo =
 
 -- |
 -- Transform an arbitrary text into a lower spinal case.
+-- 
+-- Same as @('process' 'lower' 'spinal')@.
 spinalize :: TL.Text -> TL.Text
 spinalize = process lower spinal
 
 -- |
 -- Transform an arbitrary text into a lower snake case.
+-- 
+-- Same as @('process' 'lower' 'snake')@.
 snakify :: TL.Text -> TL.Text
 snakify = process lower snake
 
 -- |
 -- Transform an arbitrary text into a camel case, 
 -- while preserving the case of the first character.
+-- 
+-- Same as @('process' 'id' 'camel')@.
 camelize :: TL.Text -> TL.Text
 camelize = process id camel
 

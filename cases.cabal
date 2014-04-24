@@ -3,7 +3,9 @@ name:
 version:
   0.1.0
 synopsis:
+  A converter for spinal, snake and camel case
 description:
+  A parser-based converter library for spinal, snake and camel case.
 category:
   Text
 homepage:
@@ -44,7 +46,6 @@ library
     -- data:
     attoparsec >= 0.10 && < 0.12,
     text,
-    string-conversions == 0.3.*,
     -- control:
     mtl,
     -- debugging:
@@ -109,7 +110,6 @@ test-suite api-tests
     HTF == 0.11.*,
     -- data:
     text,
-    string-conversions == 0.3.*,
     -- debugging:
     loch-th == 0.2.*,
     placeholders == 0.1.*,
