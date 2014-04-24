@@ -10,6 +10,7 @@ main = htfMain $ htf_thisModulesTests
 test_spinalizeCamelCase = do
   assertEqual "abc-def" $ Cases.spinalize "abcDef"
   assertEqual "abc-def" $ Cases.spinalize "abcDEF"
+  assertEqual "my-html-processor" $ Cases.spinalize "myHTMLProcessor"
 
 test_spinalizeSymbols = do
   assertEqual "abc-def" $ Cases.spinalize "abc_def"

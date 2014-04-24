@@ -46,7 +46,13 @@ partToLazyText = \case
 -------------------------
 
 upperParser :: A.Parser Part
-upperParser = Word Upper <$> (TL.fromStrict <$> A.takeWhile1 C.isUpper)
+upperParser = Word Upper <$> TL.pack <$> A.many1 char where
+  char = do
+    c <- A.satisfy C.isUpper
+    ok <- maybe True (not . C.isLower) <$> A.peekChar
+    if ok
+      then return c
+      else empty
 
 lowerParser :: A.Parser Part
 lowerParser = Word Lower <$> (TL.fromStrict <$> A.takeWhile1 C.isLower)
