@@ -152,3 +152,63 @@ test-suite api-tests
   default-language:
     Haskell2010
 
+
+benchmark benchmark
+  type:             
+    exitcode-stdio-1.0
+  hs-source-dirs:   
+    benchmark
+  main-is:      
+    Benchmark.hs
+  ghc-options:
+    -O2
+    -threaded
+    "-with-rtsopts=-N"
+  build-depends:
+    cases,
+    mwc-random == 0.13.*,
+    -- benchmarking:
+    criterion-plus == 0.1.*,
+    -- data:
+    text,
+    -- debugging:
+    loch-th == 0.2.*,
+    placeholders == 0.1.*,
+    -- 
+    base >= 4.5 && < 5
+  default-extensions:
+    Arrows
+    BangPatterns
+    ConstraintKinds
+    DataKinds
+    DefaultSignatures
+    DeriveDataTypeable
+    DeriveFunctor
+    DeriveGeneric
+    EmptyDataDecls
+    FlexibleContexts
+    FlexibleInstances
+    FunctionalDependencies
+    GADTs
+    GeneralizedNewtypeDeriving
+    ImpredicativeTypes
+    LambdaCase
+    LiberalTypeSynonyms
+    MultiParamTypeClasses
+    MultiWayIf
+    NoImplicitPrelude
+    NoMonomorphismRestriction
+    OverloadedStrings
+    PatternGuards
+    QuasiQuotes
+    RankNTypes
+    RecordWildCards
+    ScopedTypeVariables
+    StandaloneDeriving
+    TemplateHaskell
+    TupleSections
+    TypeFamilies
+    TypeOperators
+  default-language:
+    Haskell2010
+
