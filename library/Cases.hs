@@ -20,9 +20,8 @@ module Cases
 where
 
 import Cases.Prelude hiding (Word)
-import qualified Data.Attoparsec.Text.Lazy as A
+import qualified Data.Attoparsec.Text as A
 import qualified Data.Text as TS
-import qualified Data.Text.Lazy as TL
 import qualified Data.Char as C
 
 
@@ -31,13 +30,13 @@ import qualified Data.Char as C
 
 -- | A parsed info and a text of a part.
 data Part = 
-  Word Case TL.Text |
-  Digits TL.Text
+  Word Case TS.Text |
+  Digits TS.Text
 
 data Case = Title | Upper | Lower
 
-partToLazyText :: Part -> TL.Text
-partToLazyText = \case
+partToText :: Part -> TS.Text
+partToText = \case
   Word _ t -> t
   Digits t -> t
 
@@ -46,7 +45,7 @@ partToLazyText = \case
 -------------------------
 
 upperParser :: A.Parser Part
-upperParser = Word Upper <$> TL.pack <$> A.many1 char where
+upperParser = Word Upper <$> TS.pack <$> A.many1 char where
   char = do
     c <- A.satisfy C.isUpper
     ok <- maybe True (not . C.isLower) <$> A.peekChar
@@ -55,15 +54,15 @@ upperParser = Word Upper <$> TL.pack <$> A.many1 char where
       else empty
 
 lowerParser :: A.Parser Part
-lowerParser = Word Lower <$> (TL.fromStrict <$> A.takeWhile1 C.isLower)
+lowerParser = Word Lower <$> (A.takeWhile1 C.isLower)
 
 titleParser :: A.Parser Part
-titleParser = Word Title <$> (TL.cons <$> headChar <*> remainder) where
+titleParser = Word Title <$> (TS.cons <$> headChar <*> remainder) where
   headChar = A.satisfy C.isUpper
-  remainder = TL.fromStrict <$> A.takeWhile1 C.isLower
+  remainder = A.takeWhile1 C.isLower
 
 digitsParser :: A.Parser Part
-digitsParser = Digits <$> (TL.fromStrict <$> A.takeWhile1 C.isDigit)
+digitsParser = Digits <$> (A.takeWhile1 C.isDigit)
 
 partParser :: A.Parser Part
 partParser = titleParser <|> upperParser <|> lowerParser <|> digitsParser
@@ -83,24 +82,24 @@ partsParser fold = loop mempty where
 
 type Folder r = r -> Part -> r
 
-type Delimiter = Folder (Maybe TL.Text)
+type Delimiter = Folder (Maybe TS.Text)
 
 spinal :: Delimiter
 spinal = 
-  (. partToLazyText) . 
+  (. partToText) . 
   fmap Just . 
   maybe id (\l r -> l <> "-" <> r)
 
 snake :: Delimiter
 snake = 
-  (. partToLazyText) . 
+  (. partToText) . 
   fmap Just . 
   maybe id (\l r -> l <> "_" <> r)
 
 camel :: Delimiter
 camel = 
   fmap Just .
-  maybe partToLazyText (\l r -> l <> partToLazyText (title r))
+  maybe partToText (\l r -> l <> partToText (title r))
 
 
 -- * CaseTransformers
@@ -112,10 +111,10 @@ lower :: CaseTransformer
 lower = \case
   Word c t -> Word Lower t' where
     t' = case c of
-      Title -> TL.uncons t |> \case
+      Title -> TS.uncons t |> \case
         Nothing -> t
-        Just (h, t) -> TL.cons (C.toLower h) t
-      Upper -> TL.toLower t
+        Just (h, t) -> TS.cons (C.toLower h) t
+      Upper -> TS.toLower t
       Lower -> t
   p -> p
 
@@ -123,11 +122,11 @@ upper :: CaseTransformer
 upper = \case
   Word c t -> Word Upper t' where
     t' = case c of
-      Title -> TL.uncons t |> \case
+      Title -> TS.uncons t |> \case
         Nothing -> t
-        Just (h, t) -> TL.cons h (TL.toUpper t)
+        Just (h, t) -> TS.cons h (TS.toUpper t)
       Upper -> t
-      Lower -> TL.toUpper t
+      Lower -> TS.toUpper t
   p -> p
 
 title :: CaseTransformer
@@ -135,12 +134,12 @@ title = \case
   Word c t -> Word Title t' where
     t' = case c of
       Title -> t
-      Upper -> TL.uncons t |> \case
+      Upper -> TS.uncons t |> \case
         Nothing -> t  
-        Just (h, t) -> TL.cons (C.toUpper h) (TL.toLower t)
-      Lower -> TL.uncons t |> \case
+        Just (h, t) -> TS.cons (C.toUpper h) (TS.toLower t)
+      Lower -> TS.uncons t |> \case
         Nothing -> t
-        Just (h, t) -> TL.cons (C.toUpper h) t
+        Just (h, t) -> TS.cons (C.toUpper h) t
   p -> p
 
 
@@ -152,24 +151,24 @@ title = \case
 -- produce a new text using case transformation and delimiter functions.
 -- 
 -- Note: to skip case transformation use the 'id' function.
-process :: CaseTransformer -> Delimiter -> TL.Text -> TL.Text
+process :: CaseTransformer -> Delimiter -> TS.Text -> TS.Text
 process tr fo = 
   fromMaybe "" .
   either ($bug . ("Parse failure: " <>)) id .
-  A.eitherResult . A.parse (partsParser $ (. tr) . fo)
+  A.parseOnly (partsParser $ (. tr) . fo)
 
 -- |
 -- Transform an arbitrary text into a lower spinal case.
 -- 
 -- Same as @('process' 'lower' 'spinal')@.
-spinalize :: TL.Text -> TL.Text
+spinalize :: TS.Text -> TS.Text
 spinalize = process lower spinal
 
 -- |
 -- Transform an arbitrary text into a lower snake case.
 -- 
 -- Same as @('process' 'lower' 'snake')@.
-snakify :: TL.Text -> TL.Text
+snakify :: TS.Text -> TS.Text
 snakify = process lower snake
 
 -- |
@@ -177,6 +176,6 @@ snakify = process lower snake
 -- while preserving the case of the first character.
 -- 
 -- Same as @('process' 'id' 'camel')@.
-camelize :: TL.Text -> TL.Text
+camelize :: TS.Text -> TS.Text
 camelize = process id camel
 

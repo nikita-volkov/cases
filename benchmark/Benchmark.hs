@@ -2,7 +2,7 @@
 import Prelude
 import Cases
 import qualified CriterionPlus as C
-import qualified Data.Text.Lazy as Text
+import qualified Data.Text as Text
 
 main = do
   C.benchmark $ do
