@@ -44,7 +44,7 @@ library
     Cases
   build-depends:
     -- data:
-    attoparsec >= 0.10 && < 0.12,
+    attoparsec >= 0.10 && < 0.13,
     text,
     -- control:
     mtl,
