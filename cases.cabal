@@ -1,7 +1,7 @@
 name:
   cases
 version:
-  0.1.0
+  0.1.1
 synopsis:
   A converter for spinal, snake and camel cases
 description:
@@ -43,16 +43,10 @@ library
   exposed-modules:
     Cases
   build-depends:
-    -- data:
     attoparsec >= 0.10 && < 0.13,
     text,
-    -- control:
-    mtl,
-    -- debugging:
     loch-th == 0.2.*,
-    placeholders == 0.1.*,
-    -- general:
-    base >= 4.5 && < 5
+    base-prelude >= 0.1.4 && < 0.2
   default-extensions:
     Arrows
     BangPatterns

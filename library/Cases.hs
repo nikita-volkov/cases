@@ -22,7 +22,6 @@ where
 import Cases.Prelude hiding (Word)
 import qualified Data.Attoparsec.Text as A
 import qualified Data.Text as TS
-import qualified Data.Char as C
 
 
 -- * Part
@@ -47,22 +46,22 @@ partToText = \case
 upperParser :: A.Parser Part
 upperParser = Word Upper <$> TS.pack <$> A.many1 char where
   char = do
-    c <- A.satisfy C.isUpper
-    ok <- maybe True (not . C.isLower) <$> A.peekChar
+    c <- A.satisfy isUpper
+    ok <- maybe True (not . isLower) <$> A.peekChar
     if ok
       then return c
       else empty
 
 lowerParser :: A.Parser Part
-lowerParser = Word Lower <$> (A.takeWhile1 C.isLower)
+lowerParser = Word Lower <$> (A.takeWhile1 isLower)
 
 titleParser :: A.Parser Part
 titleParser = Word Title <$> (TS.cons <$> headChar <*> remainder) where
-  headChar = A.satisfy C.isUpper
-  remainder = A.takeWhile1 C.isLower
+  headChar = A.satisfy isUpper
+  remainder = A.takeWhile1 isLower
 
 digitsParser :: A.Parser Part
-digitsParser = Digits <$> (A.takeWhile1 C.isDigit)
+digitsParser = Digits <$> (A.takeWhile1 isDigit)
 
 partParser :: A.Parser Part
 partParser = titleParser <|> upperParser <|> lowerParser <|> digitsParser
@@ -113,7 +112,7 @@ lower = \case
     t' = case c of
       Title -> TS.uncons t |> \case
         Nothing -> t
-        Just (h, t) -> TS.cons (C.toLower h) t
+        Just (h, t) -> TS.cons (toLower h) t
       Upper -> TS.toLower t
       Lower -> t
   p -> p
@@ -136,10 +135,10 @@ title = \case
       Title -> t
       Upper -> TS.uncons t |> \case
         Nothing -> t  
-        Just (h, t) -> TS.cons (C.toUpper h) (TS.toLower t)
+        Just (h, t) -> TS.cons (toUpper h) (TS.toLower t)
       Lower -> TS.uncons t |> \case
         Nothing -> t
-        Just (h, t) -> TS.cons (C.toUpper h) t
+        Just (h, t) -> TS.cons (toUpper h) t
   p -> p
 
 
