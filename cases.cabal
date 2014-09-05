@@ -3,9 +3,9 @@ name:
 version:
   0.1.0
 synopsis:
-  A converter for spinal, snake and camel case
+  A converter for spinal, snake and camel cases
 description:
-  A parser-based converter library for spinal, snake and camel case.
+  A parser-based converter library for spinal, snake and camel cases.
 category:
   Text
 homepage:
