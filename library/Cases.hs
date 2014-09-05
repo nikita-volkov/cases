@@ -21,7 +21,7 @@ where
 
 import Cases.Prelude hiding (Word)
 import qualified Data.Attoparsec.Text as A
-import qualified Data.Text as TS
+import qualified Data.Text as T
 
 
 -- * Part
@@ -29,12 +29,12 @@ import qualified Data.Text as TS
 
 -- | A parsed info and a text of a part.
 data Part = 
-  Word Case TS.Text |
-  Digits TS.Text
+  Word Case T.Text |
+  Digits T.Text
 
 data Case = Title | Upper | Lower
 
-partToText :: Part -> TS.Text
+partToText :: Part -> T.Text
 partToText = \case
   Word _ t -> t
   Digits t -> t
@@ -44,7 +44,7 @@ partToText = \case
 -------------------------
 
 upperParser :: A.Parser Part
-upperParser = Word Upper <$> TS.pack <$> A.many1 char where
+upperParser = Word Upper <$> T.pack <$> A.many1 char where
   char = do
     c <- A.satisfy isUpper
     ok <- maybe True (not . isLower) <$> A.peekChar
@@ -56,7 +56,7 @@ lowerParser :: A.Parser Part
 lowerParser = Word Lower <$> (A.takeWhile1 isLower)
 
 titleParser :: A.Parser Part
-titleParser = Word Title <$> (TS.cons <$> headChar <*> remainder) where
+titleParser = Word Title <$> (T.cons <$> headChar <*> remainder) where
   headChar = A.satisfy isUpper
   remainder = A.takeWhile1 isLower
 
@@ -81,7 +81,7 @@ partsParser fold = loop mempty where
 
 type Folder r = r -> Part -> r
 
-type Delimiter = Folder (Maybe TS.Text)
+type Delimiter = Folder (Maybe T.Text)
 
 spinal :: Delimiter
 spinal = 
@@ -110,10 +110,10 @@ lower :: CaseTransformer
 lower = \case
   Word c t -> Word Lower t' where
     t' = case c of
-      Title -> TS.uncons t |> \case
+      Title -> T.uncons t |> \case
         Nothing -> t
-        Just (h, t) -> TS.cons (toLower h) t
-      Upper -> TS.toLower t
+        Just (h, t) -> T.cons (toLower h) t
+      Upper -> T.toLower t
       Lower -> t
   p -> p
 
@@ -121,11 +121,11 @@ upper :: CaseTransformer
 upper = \case
   Word c t -> Word Upper t' where
     t' = case c of
-      Title -> TS.uncons t |> \case
+      Title -> T.uncons t |> \case
         Nothing -> t
-        Just (h, t) -> TS.cons h (TS.toUpper t)
+        Just (h, t) -> T.cons h (T.toUpper t)
       Upper -> t
-      Lower -> TS.toUpper t
+      Lower -> T.toUpper t
   p -> p
 
 title :: CaseTransformer
@@ -133,12 +133,12 @@ title = \case
   Word c t -> Word Title t' where
     t' = case c of
       Title -> t
-      Upper -> TS.uncons t |> \case
+      Upper -> T.uncons t |> \case
         Nothing -> t  
-        Just (h, t) -> TS.cons (toUpper h) (TS.toLower t)
-      Lower -> TS.uncons t |> \case
+        Just (h, t) -> T.cons (toUpper h) (T.toLower t)
+      Lower -> T.uncons t |> \case
         Nothing -> t
-        Just (h, t) -> TS.cons (toUpper h) t
+        Just (h, t) -> T.cons (toUpper h) t
   p -> p
 
 
@@ -150,7 +150,7 @@ title = \case
 -- produce a new text using case transformation and delimiter functions.
 -- 
 -- Note: to skip case transformation use the 'id' function.
-process :: CaseTransformer -> Delimiter -> TS.Text -> TS.Text
+process :: CaseTransformer -> Delimiter -> T.Text -> T.Text
 process tr fo = 
   fromMaybe "" .
   either ($bug . ("Parse failure: " <>)) id .
@@ -160,14 +160,14 @@ process tr fo =
 -- Transform an arbitrary text into a lower spinal case.
 -- 
 -- Same as @('process' 'lower' 'spinal')@.
-spinalize :: TS.Text -> TS.Text
+spinalize :: T.Text -> T.Text
 spinalize = process lower spinal
 
 -- |
 -- Transform an arbitrary text into a lower snake case.
 -- 
 -- Same as @('process' 'lower' 'snake')@.
-snakify :: TS.Text -> TS.Text
+snakify :: T.Text -> T.Text
 snakify = process lower snake
 
 -- |
@@ -175,6 +175,6 @@ snakify = process lower snake
 -- while preserving the case of the first character.
 -- 
 -- Same as @('process' 'id' 'camel')@.
-camelize :: TS.Text -> TS.Text
+camelize :: T.Text -> T.Text
 camelize = process id camel
 
