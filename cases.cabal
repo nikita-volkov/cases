@@ -1,7 +1,7 @@
 name:
   cases
 version:
-  0.1.1
+  0.1.2
 synopsis:
   A converter for spinal, snake and camel cases
 description:
@@ -101,7 +101,7 @@ test-suite api-tests
     cases,
     QuickCheck,
     HUnit,
-    HTF == 0.11.*,
+    HTF >= 0.11 && < 0.13,
     -- data:
     text,
     -- debugging:
