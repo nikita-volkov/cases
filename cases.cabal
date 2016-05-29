@@ -100,7 +100,7 @@ test-suite api-tests
     cases,
     QuickCheck,
     HUnit,
-    HTF >= 0.11 && < 0.13,
+    HTF >= 0.11 && < 0.14,
     -- data:
     text,
     -- debugging:
