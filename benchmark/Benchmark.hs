@@ -1,13 +1,13 @@
+module Main where
 
 import Prelude
-import Cases
-import qualified CriterionPlus as C
-import qualified Data.Text as Text
+import Criterion.Main
+import qualified Cases as A
+import qualified Data.Text as B
 
-main = do
-  C.benchmark $ do
 
-    C.standoff "" $ do
-      let !text = Text.replicate 100 "Abc 123 / dsf asdf ;lkj. "
-      C.subject "camelize" $ do
-        C.nfIO $ return $ camelize text
+main =
+  defaultMain $
+  [
+    bench "camelize" $ nf A.camelize $! B.replicate 100 "Abc 123 / dsf asdf ;lkj. "
+  ]
