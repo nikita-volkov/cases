@@ -11,6 +11,7 @@ module Cases
   Delimiter,
   spinal,
   snake,
+  whitespace,
   camel,
   -- * Default Processors
   spinalize,
@@ -94,6 +95,12 @@ snake =
   (. partToText) . 
   fmap Just . 
   maybe id (\l r -> l <> "_" <> r)
+
+whitespace :: Delimiter
+whitespace = 
+  (. partToText) . 
+  fmap Just . 
+  maybe id (\l r -> l <> " " <> r)
 
 camel :: Delimiter
 camel = 
