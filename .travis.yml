@@ -33,6 +33,11 @@ install:
       constraint_options=(
       );
     fi;
+  # Install the "haskell-src-exts" implicit dependency
+  - if [ "$tests" = "1" ];
+    then
+      cabal v1-install happy --reorder-goals --force-reinstalls ${constraint_options[@]};
+    fi;
   # Install the library dependencies
   - cabal v1-install --only-dependencies --reorder-goals --force-reinstalls
       ${constraint_options[@]}
