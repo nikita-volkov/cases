@@ -160,7 +160,7 @@ title = \case
 process :: CaseTransformer -> Delimiter -> T.Text -> T.Text
 process tr fo = 
   fromMaybe "" .
-  either ($bug . ("Parse failure: " <>)) id .
+  either (error . ("Parse failure: " <>)) id .
   A.parseOnly (partsParser $ (. tr) . fo)
 
 -- |

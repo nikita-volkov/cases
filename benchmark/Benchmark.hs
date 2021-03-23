@@ -1,7 +1,7 @@
 module Main where
 
 import Prelude
-import Criterion.Main
+import Gauge.Main
 import qualified Cases as A
 import qualified Data.Text as B
 
