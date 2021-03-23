@@ -82,39 +82,43 @@ partsParser fold = loop mempty where
 
 type Folder r = r -> Part -> r
 
-type Delimiter = Folder (Maybe T.Text)
+newtype Delimiter = Delimiter (Folder (Maybe T.Text))
 
 spinal :: Delimiter
-spinal = 
+spinal =
+  Delimiter $
   (. partToText) . 
   fmap Just . 
   maybe id (\l r -> l <> "-" <> r)
 
 snake :: Delimiter
 snake = 
+  Delimiter $
   (. partToText) . 
   fmap Just . 
   maybe id (\l r -> l <> "_" <> r)
 
 whitespace :: Delimiter
 whitespace = 
+  Delimiter $
   (. partToText) . 
   fmap Just . 
   maybe id (\l r -> l <> " " <> r)
 
 camel :: Delimiter
 camel = 
+  Delimiter $
   fmap Just .
-  maybe partToText (\l r -> l <> partToText (title r))
+  maybe partToText (\l r -> l <> partToText (coerce title r))
 
 
 -- * CaseTransformers
 -------------------------
 
-type CaseTransformer = Part -> Part
+newtype CaseTransformer = CaseTransformer (Part -> Part)
 
 lower :: CaseTransformer
-lower = \case
+lower = CaseTransformer $ \case
   Word c t -> Word Lower t' where
     t' = case c of
       Title -> T.uncons t |> \case
@@ -125,7 +129,7 @@ lower = \case
   p -> p
 
 upper :: CaseTransformer
-upper = \case
+upper = CaseTransformer $ \case
   Word c t -> Word Upper t' where
     t' = case c of
       Title -> T.uncons t |> \case
@@ -136,7 +140,7 @@ upper = \case
   p -> p
 
 title :: CaseTransformer
-title = \case
+title = CaseTransformer $ \case
   Word c t -> Word Title t' where
     t' = case c of
       Title -> t
@@ -158,7 +162,7 @@ title = \case
 -- 
 -- Note: to skip case transformation use the 'id' function.
 process :: CaseTransformer -> Delimiter -> T.Text -> T.Text
-process tr fo = 
+process (CaseTransformer tr) (Delimiter fo) = 
   fromMaybe "" .
   either (error . ("Parse failure: " <>)) id .
   A.parseOnly (partsParser $ (. tr) . fo)
@@ -183,5 +187,5 @@ snakify = process lower snake
 -- 
 -- Same as @('process' 'id' 'camel')@.
 camelize :: T.Text -> T.Text
-camelize = process id camel
+camelize = process (CaseTransformer id) camel
 
