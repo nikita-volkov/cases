@@ -1,11 +1,10 @@
-{-# OPTIONS_GHC -F -pgmF htfpp #-}
+{-# OPTIONS_GHC -F -pgmF htfpp -Wno-missing-signatures #-}
 
-import Prelude
-import Test.Framework
 import qualified Cases
+import Test.Framework
+import Prelude
 
 main = htfMain $ htf_thisModulesTests
-
 
 test_spinalizeCamelCase = do
   assertEqual "abc-def" $ Cases.spinalize "abcDef"
@@ -23,7 +22,7 @@ test_spinalizeSymbols = do
 test_spinalizeMultipleDelimiters = do
   assertEqual "abc-def" $ Cases.spinalize "abc_-:,/def"
   assertEqual "abc-def" $ Cases.spinalize "abc /-def"
-    
+
 test_spinalizeSpaces = do
   assertEqual "abc-def" $ Cases.spinalize "abc def"
   assertEqual "abc-def" $ Cases.spinalize "abc\ndef"
