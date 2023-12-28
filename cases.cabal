@@ -25,6 +25,7 @@ common base
     NoMonomorphismRestriction
     Arrows
     BangPatterns
+    BlockArguments
     ConstraintKinds
     DataKinds
     DefaultSignatures
@@ -73,11 +74,11 @@ test-suite api-tests
   import:         base
   type:           exitcode-stdio-1.0
   hs-source-dirs: api-tests
-  main-is:        APITests.hs
+  main-is:        Main.hs
   ghc-options:    -threaded -with-rtsopts=-N
   build-depends:
     , cases
-    , HTF >=0.15 && <0.16
+    , hspec >=2.11 && <3
     , rerebase >=1 && <2
 
 benchmark benchmark

@@ -28,8 +28,6 @@ import qualified Data.Text as T
 
 -- * Part
 
--------------------------
-
 -- | A parsed info and a text of a part.
 data Part
   = Word Case T.Text
@@ -43,8 +41,6 @@ partToText = \case
   Digits t -> t
 
 -- * Parsers
-
--------------------------
 
 upperParser :: A.Parser Part
 upperParser = Word Upper <$> T.pack <$> A.many1 char
@@ -83,8 +79,6 @@ partsParser fold = loop mempty
 
 -- * Folders
 
--------------------------
-
 type Folder r = r -> Part -> r
 
 type Delimiter = Folder (Maybe T.Text)
@@ -113,8 +107,6 @@ camel =
     . maybe partToText (\l r -> l <> partToText (title r))
 
 -- * CaseTransformers
-
--------------------------
 
 type CaseTransformer = Part -> Part
 
@@ -161,8 +153,6 @@ title = \case
   p -> p
 
 -- * API
-
--------------------------
 
 -- |
 -- Extract separate words from an arbitrary text using a smart parser and
