@@ -81,30 +81,38 @@ partsParser fold = loop mempty
 
 type Folder r = r -> Part -> r
 
-type Delimiter = Folder (Maybe T.Text)
+newtype Delimiter = Delimiter (Maybe T.Text -> Part -> Maybe T.Text)
 
 spinal :: Delimiter
 spinal =
-  (. partToText)
-    . fmap Just
-    . maybe id (\l r -> l <> "-" <> r)
+  Delimiter
+    ( (. partToText)
+        . fmap Just
+        . maybe id (\l r -> l <> "-" <> r)
+    )
 
 snake :: Delimiter
 snake =
-  (. partToText)
-    . fmap Just
-    . maybe id (\l r -> l <> "_" <> r)
+  Delimiter
+    ( (. partToText)
+        . fmap Just
+        . maybe id (\l r -> l <> "_" <> r)
+    )
 
 whitespace :: Delimiter
 whitespace =
-  (. partToText)
-    . fmap Just
-    . maybe id (\l r -> l <> " " <> r)
+  Delimiter
+    ( (. partToText)
+        . fmap Just
+        . maybe id (\l r -> l <> " " <> r)
+    )
 
 camel :: Delimiter
 camel =
-  fmap Just
-    . maybe partToText (\l r -> l <> partToText (title r))
+  Delimiter
+    ( fmap Just
+        . maybe partToText (\l r -> l <> partToText (title r))
+    )
 
 -- * CaseTransformers
 
@@ -160,7 +168,7 @@ title = \case
 --
 -- Note: to skip case transformation use the 'id' function.
 process :: CaseTransformer -> Delimiter -> T.Text -> T.Text
-process tr fo =
+process tr (Delimiter fo) =
   fromMaybe ""
     . either (error . ("Parse failure: " <>)) id
     . A.parseOnly (partsParser $ (. tr) . fo)

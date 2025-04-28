@@ -1,6 +1,6 @@
 cabal-version: 3.0
 name: cases
-version: 0.1.4.3
+version: 0.1.4.4
 synopsis: A converter for spinal, snake and camel cases
 description:
   A parser-based converter library for spinal, snake and camel cases.
