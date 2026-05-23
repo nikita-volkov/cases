@@ -1,3 +1,8 @@
+-- |
+-- Convert arbitrary text into spinal, snake, camel, and custom case formats.
+--
+-- The parser is tolerant to mixed delimiters and punctuation, and it can split
+-- words out of mixed-case identifiers like @myHTMLProcessor@.
 module Cases
   ( -- * Processor
     process,
@@ -81,8 +86,21 @@ partsParser fold = loop mempty
 
 type Folder r = r -> Part -> r
 
+-- |
+-- Strategy for joining parsed parts into the output text.
+--
+-- A delimiter controls where separators are inserted (for example @-@, @_@,
+-- whitespace, or camel-style concatenation).
 newtype Delimiter = Delimiter (Maybe T.Text -> Part -> Maybe T.Text)
 
+-- |
+-- Join parts with @-@.
+--
+-- Useful with 'lower' to produce spinal case:
+--
+-- @
+-- process lower spinal "myHTMLProcessor" == "my-html-processor"
+-- @
 spinal :: Delimiter
 spinal =
   Delimiter
@@ -91,6 +109,14 @@ spinal =
         . maybe id (\l r -> l <> "-" <> r)
     )
 
+-- |
+-- Join parts with @_@.
+--
+-- Useful with 'lower' to produce snake case:
+--
+-- @
+-- process lower snake "myHTMLProcessor" == "my_html_processor"
+-- @
 snake :: Delimiter
 snake =
   Delimiter
@@ -99,6 +125,12 @@ snake =
         . maybe id (\l r -> l <> "_" <> r)
     )
 
+-- |
+-- Join parts with spaces.
+--
+-- @
+-- process lower whitespace "myHTMLProcessor" == "my html processor"
+-- @
 whitespace :: Delimiter
 whitespace =
   Delimiter
@@ -107,6 +139,12 @@ whitespace =
         . maybe id (\l r -> l <> " " <> r)
     )
 
+-- |
+-- Concatenate parts and title-case every part after the first one.
+--
+-- @
+-- process id camel "parse DBM XML" == "parseDbmXml"
+-- @
 camel :: Delimiter
 camel =
   Delimiter
@@ -116,8 +154,18 @@ camel =
 
 -- * CaseTransformers
 
+-- |
+-- Strategy for transforming the case of each parsed word part.
+--
+-- Typical transformers are 'lower', 'upper', and 'title'.
 type CaseTransformer = Part -> Part
 
+-- |
+-- Lower-case every word part.
+--
+-- @
+-- process lower spinal "APIResponse2XX" == "api-response-2-xx"
+-- @
 lower :: CaseTransformer
 lower = \case
   Word c t -> Word Lower t'
@@ -131,6 +179,12 @@ lower = \case
         Lower -> t
   p -> p
 
+-- |
+-- Upper-case every word part.
+--
+-- @
+-- process upper snake "myHtmlProcessor" == "MY_HTML_PROCESSOR"
+-- @
 upper :: CaseTransformer
 upper = \case
   Word c t -> Word Upper t'
@@ -144,6 +198,12 @@ upper = \case
         Lower -> T.toUpper t
   p -> p
 
+-- |
+-- Title-case every word part.
+--
+-- @
+-- process title whitespace "myHTMLProcessor" == "My Html Processor"
+-- @
 title :: CaseTransformer
 title = \case
   Word c t -> Word Title t'
@@ -167,6 +227,14 @@ title = \case
 -- produce a new text using case transformation and delimiter functions.
 --
 -- Note: to skip case transformation use the 'id' function.
+--
+-- Examples:
+--
+-- @
+-- process lower spinal "abcDEF" == "abc-def"
+-- process id camel "parse DBM XML" == "parseDbmXml"
+-- process title whitespace "abc_def" == "Abc Def"
+-- @
 process :: CaseTransformer -> Delimiter -> T.Text -> T.Text
 process tr (Delimiter fo) =
   fromMaybe ""
@@ -177,6 +245,11 @@ process tr (Delimiter fo) =
 -- Transform an arbitrary text into a lower spinal case.
 --
 -- Same as @('process' 'lower' 'spinal')@.
+--
+-- @
+-- spinalize "myHTMLProcessor" == "my-html-processor"
+-- spinalize " abc_-:,/def " == "abc-def"
+-- @
 spinalize :: T.Text -> T.Text
 spinalize = process lower spinal
 
@@ -184,6 +257,10 @@ spinalize = process lower spinal
 -- Transform an arbitrary text into a lower snake case.
 --
 -- Same as @('process' 'lower' 'snake')@.
+--
+-- @
+-- snakify "Ёжик лижет мёд." == "ёжик_лижет_мёд"
+-- @
 snakify :: T.Text -> T.Text
 snakify = process lower snake
 
@@ -192,5 +269,11 @@ snakify = process lower snake
 -- while preserving the case of the first character.
 --
 -- Same as @('process' 'id' 'camel')@.
+--
+-- @
+-- camelize "abc-def" == "abcDef"
+-- camelize "Abc-def" == "AbcDef"
+-- camelize "parse DBM XML" == "parseDbmXml"
+-- @
 camelize :: T.Text -> T.Text
 camelize = process id camel
